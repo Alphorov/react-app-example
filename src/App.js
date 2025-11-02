@@ -3,6 +3,8 @@ import PostList from "./Components/PostList";
 import './styles/App.css'
 import PostForm from "./Components/UI/form/AddForm";
 import PostFilter from "./Components/PostFilter";
+import AppModal from "./Components/UI/modal/AppModal";
+import AppButton from "./Components/UI/button/AppButton";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -23,6 +25,7 @@ function App() {
     },
   ])
 
+  const [modal, setModal] = useState(false);
 
   const [filter, setFilter] = useState(
     {
@@ -31,7 +34,6 @@ function App() {
     }
   );
 
-
   const sortedPosts = useMemo(() => {
     if (filter.sort) {
       return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
@@ -39,13 +41,12 @@ function App() {
     return posts;
   }, [filter.sort, posts]);
 
-  const sortedAndSearchedPosts = useMemo(() => {
-    console.log('sortedAndSearchedPosts');
-    return sortedPosts.filter((post => post.title.toLocaleLowerCase().includes(filter.query.toLocaleLowerCase())));
-  }, [filter.query, sortedPosts]);
+  const sortedAndSearchedPosts = useMemo(() =>
+    sortedPosts.filter((post => post.title.toLocaleLowerCase().includes(filter.query.toLocaleLowerCase())),), [filter.query, sortedPosts]);
 
   const addPost = (post) => {
     setPosts([...posts, post]);
+    setModal(!modal);
   }
 
   const removePost = (post) => {
@@ -54,24 +55,21 @@ function App() {
 
   return (
     <div className="App">
+      <AppModal visible={modal} setVisible={setModal}>
+        <PostForm addPostCallback={addPost} />
+      </AppModal >
 
-      <PostForm addPostCallback={addPost} />
+      <AppButton onClick={() => setModal(true)}>Add Post</AppButton>
 
       <hr style={{ margin: '16px' }} />
+
 
       <PostFilter
         filter={filter}
         setFilter={setFilter}
       />
 
-      {
-        sortedAndSearchedPosts.length ?
-          <PostList posts={sortedAndSearchedPosts} removePost={removePost} title={"JavaScript Posts"} />
-          :
-          <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '24px' }}>No posts found</div>
-      }
-
-
+      <PostList posts={sortedAndSearchedPosts} removePost={removePost} title={"JavaScript Posts"} />
     </div>
   );
 }
