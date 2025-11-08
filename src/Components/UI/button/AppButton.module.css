@@ -1,6 +1,6 @@
 .appBtn {
-    padding: 8px 16px;
-    border: 1px solid black;
-    background-color: rgba(0, 255, 255, 0.275);
-    cursor: pointer;
+  padding: 8px 16px;
+  border: 1px solid black;
+  background-color: rgba(0, 255, 255, 0.275);
+  cursor: pointer;
 }

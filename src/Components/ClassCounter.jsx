@@ -1,38 +1,38 @@
 import React from "react";
 
 class ClassCounter extends React.Component {
-    constructor(props) {
-        super();
+  constructor(props) {
+    super();
 
-        this.state = {
-            counter: 0,
-        };
-
-        this.increment = this.increment.bind(this);
-        this.decrement = this.decrement.bind(this);
+    this.state = {
+      counter: 0,
     };
 
-    increment() {
-        this.setState({
-            counter: this.state.counter + 1
-        })
-    }
+    this.increment = this.increment.bind(this);
+    this.decrement = this.decrement.bind(this);
+  }
 
-    decrement() {
-        this.setState({
-            counter: this.state.counter - 1
-        })
-    }
+  increment() {
+    this.setState({
+      counter: this.state.counter + 1,
+    });
+  }
 
-    render() {
-        return (
-            <div>
-                <h1>{this.state.counter}</h1>
-                <button onClick={this.decrement}>-</button>
-                <button onClick={this.increment}>+</button>
-            </div>
-        );
-    };
+  decrement() {
+    this.setState({
+      counter: this.state.counter - 1,
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>{this.state.counter}</h1>
+        <button onClick={this.decrement}>-</button>
+        <button onClick={this.increment}>+</button>
+      </div>
+    );
+  }
 }
 
 export default ClassCounter;

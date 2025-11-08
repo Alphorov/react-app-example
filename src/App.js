@@ -1,75 +1,88 @@
-import { useMemo, useState } from "react";
-import PostList from "./Components/PostList";
-import './styles/App.css'
-import PostForm from "./Components/UI/form/AddForm";
-import PostFilter from "./Components/PostFilter";
-import AppModal from "./Components/UI/modal/AppModal";
-import AppButton from "./Components/UI/button/AppButton";
+import './styles/App.css';
+import { useEffect, useState } from 'react';
+import PostForm from './Components/UI/form/AddForm';
+import AppModal from './Components/UI/modal/AppModal';
+import AppButton from './Components/UI/button/AppButton';
+import Pagination from './Components/UI/pagination/Pagination';
+import CircularProgressIndicator from './Components/UI/progress_indicator/CircularProgressIndicator';
+import { getPagesCount } from './Components/utils/pages';
+import PostList from './Components/PostList';
+import PostFilter from './Components/PostFilter';
+import { usePosts } from './hooks/usePosts';
+import PostService from './API/PostService';
+import useFetch from './hooks/useFetch';
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: 'BJavaScript 1',
-      description: 'CJavaScript is a programming language'
-    },
-    {
-      id: 2,
-      title: 'AJavaScript 2',
-      description: 'BJavaScript is a programming language'
-    },
-    {
-      id: 3,
-      title: 'CJavaScript 2',
-      description: 'AJavaScript is a programming language'
-    },
-  ])
+  const [posts, setPosts] = useState([]);
 
   const [modal, setModal] = useState(false);
 
-  const [filter, setFilter] = useState(
-    {
-      query: '',
-      sort: '',
-    }
-  );
+  const [filter, setFilter] = useState({
+    query: '',
+    sort: '',
+  });
 
-  const sortedPosts = useMemo(() => {
-    if (filter.sort) {
-      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
-    }
-    return posts;
-  }, [filter.sort, posts]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
 
-  const sortedAndSearchedPosts = useMemo(() =>
-    sortedPosts.filter((post => post.title.toLocaleLowerCase().includes(filter.query.toLocaleLowerCase())),), [filter.query, sortedPosts]);
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
+
+  const [fetchPost, loading, error] = useFetch(async () => {
+    const response = await PostService.getAll(limit, page);
+    const totalCount = response.headers['x-total-count'];
+    setTotalPages(getPagesCount(totalCount, limit));
+    setPosts(response.data);
+    return;
+  });
+
+  useEffect(() => {
+    fetchPost();
+  }, [page]);
 
   const addPost = (post) => {
     setPosts([...posts, post]);
     setModal(!modal);
-  }
+  };
 
   const removePost = (post) => {
-    setPosts(posts.filter((p) => p.id !== post.id))
-  }
+    setPosts(posts.filter((p) => p.id !== post.id));
+  };
 
   return (
     <div className="App">
       <AppModal visible={modal} setVisible={setModal}>
         <PostForm addPostCallback={addPost} />
-      </AppModal >
+      </AppModal>
 
       <AppButton onClick={() => setModal(true)}>Add Post</AppButton>
 
       <hr style={{ margin: '16px' }} />
 
+      <PostFilter filter={filter} setFilter={setFilter} />
 
-      <PostFilter
-        filter={filter}
-        setFilter={setFilter}
-      />
+      {error && <h1>An error: {error}</h1>}
 
-      <PostList posts={sortedAndSearchedPosts} removePost={removePost} title={"JavaScript Posts"} />
+      {loading ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: '64px',
+          }}
+        >
+          <CircularProgressIndicator />
+        </div>
+      ) : (
+        <div>
+          <PostList
+            posts={sortedAndSearchedPosts}
+            remove={removePost}
+            title={'JavaScript Posts'}
+          />
+          <Pagination totalPages={totalPages} page={page} setPage={setPage} />
+        </div>
+      )}
     </div>
   );
 }

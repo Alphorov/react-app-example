@@ -1,39 +1,45 @@
-import { useState } from "react";
+import { useState } from 'react';
 import AppButton from '../button/AppButton';
-import AppInput from '../input/AppInput'
+import AppInput from '../input/AppInput';
 
 const PostForm = ({ addPostCallback }) => {
+  const [post, setPost] = useState({ title: '', body: '' });
 
-    const [post, setPost] = useState({ title: '', description: '' });
+  const addPost = (event) => {
+    event.preventDefault();
 
-    const addPost = (event) => {
-        event.preventDefault();
+    const newPost = {
+      id: crypto.randomUUID(),
+      ...post,
+    };
 
-        const newPost = {
-            id: Date.now(),
-            ...post
-        }
+    addPostCallback(newPost);
+    setPost({ title: '', body: '' });
+  };
+  return (
+    <form>
+      <AppInput
+        type={'text'}
+        placeholder="Title"
+        value={post.title}
+        onChange={(event) => setPost({ ...post, title: event.target.value })}
+      />
 
-        addPostCallback(newPost);
-        setPost({ title: '', description: '' });
-    }
-    return <form>
-        <AppInput
-            type={"text"}
-            placeholder="Title"
-            value={post.title}
-            onChange={event => setPost({ ...post, title: event.target.value })}
-        />
+      <AppInput
+        type={'text'}
+        placeholder="body"
+        value={post.body}
+        onChange={(event) => setPost({ ...post, body: event.target.value })}
+      />
 
-        <AppInput
-            type={"text"}
-            placeholder="Description"
-            value={post.description}
-            onChange={event => setPost({ ...post, description: event.target.value })}
-        />
-
-        <AppButton disabled={(post.title.length === 0 || post.description.length === 0)} onClick={addPost}>Add Article</AppButton>
+      <AppButton
+        disabled={post.title.length === 0 || post.body.length === 0}
+        onClick={addPost}
+      >
+        Add Article
+      </AppButton>
     </form>
-}
+  );
+};
 
 export default PostForm;

@@ -1,12 +1,11 @@
-import classes from './AppButton.module.css';
-
+import classes from "./AppButton.module.css";
 
 const AppButton = ({ children, ...props }) => {
-    return (
-        <button {...props} className={classes.appBtn}>
-            {children}
-        </button>
-    );
-}
+  return (
+    <button {...props} className={classes.appBtn}>
+      {children}
+    </button>
+  );
+};
 
-export default AppButton
+export default AppButton;
